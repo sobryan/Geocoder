@@ -1,5 +1,4 @@
 package com.example.demo.service;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
@@ -41,7 +41,7 @@ class GeocodingServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode[] responseNodes = objectMapper.readValue(jsonResponse, JsonNode[].class);
         ResponseEntity<JsonNode[]> responseEntity = ResponseEntity.ok(responseNodes);
-        Mockito.when(restTemplate.getForEntity(any(String.class), eq(JsonNode[].class)))
+        Mockito.when(restTemplate.getForEntity(any(URI.class), eq(JsonNode[].class)))
                 .thenReturn(responseEntity);
 
         // Call the method
@@ -51,6 +51,9 @@ class GeocodingServiceTest {
         assertThat(result).isPresent();
         assertThat(result.get().lat).isEqualTo(37.4219999);
         assertThat(result.get().lng).isEqualTo(-122.0840575);
+
+        // Verify the interactions
+        Mockito.verify(restTemplate).getForEntity(any(URI.class), eq(JsonNode[].class));
     }
 
     @Test
@@ -67,5 +70,8 @@ class GeocodingServiceTest {
 
         // Assert the result
         assertThat(result).isEmpty();
+
+        // Verify the interactions
+        Mockito.verify(restTemplate).getForEntity(any(URI.class), eq(JsonNode[].class));
     }
 }
